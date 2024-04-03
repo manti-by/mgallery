@@ -1,6 +1,6 @@
 numpy==1.26.0
 opencv-python==4.8.1.78
-pillow==10.0.1
+pillow==10.3.0
 humanize==4.8.0
 redis==5.0.1
 rawpy==0.18.1
