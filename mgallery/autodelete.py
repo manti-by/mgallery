@@ -2,7 +2,8 @@ import logging
 import os
 
 from mgallery.database import Database
-from mgallery.settings import THUMBNAILS_PATH, GALLERY_PATH
+from mgallery.settings import GALLERY_PATH, THUMBNAILS_PATH
+
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +15,7 @@ def run_autodelete():
         target = images[1]
         for image in images[1:]:
             if image["phash"] == target["phash"]:
-                logger.info(f"Target and current images have the same size")
+                logger.info("Target and current images have the same size")
                 continue
 
             database.delete(image["path"], image["name"])

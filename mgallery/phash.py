@@ -1,16 +1,15 @@
 import logging
 
-import numpy
 import cv2
+import numpy
 
 from mgallery.utils import binary_array_to_hex
+
 
 logger = logging.getLogger(__name__)
 
 
-def get_image_phash(
-    image: numpy.ndarray, image_size: int = 24, hash_size: int = 6
-) -> str | None:
+def get_image_phash(image: numpy.ndarray, image_size: int = 24, hash_size: int = 6) -> str | None:
     """
     Perceptual Hash computation.
 

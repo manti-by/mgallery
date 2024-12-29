@@ -3,6 +3,7 @@ import logging
 
 from mgallery.database import Database
 
+
 logger = logging.getLogger(__name__)
 
 

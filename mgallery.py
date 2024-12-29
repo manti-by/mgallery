@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 import argparse
-
 import logging.config
 
 from mgallery.settings import LOGGING
 
+
 logging.config.dictConfig(LOGGING)
 
-parser = argparse.ArgumentParser(
-    prog="python mgallery.py", description="Image deduplicate script.", add_help=True
-)
+parser = argparse.ArgumentParser(prog="python mgallery.py", description="Image deduplicate script.", add_help=True)
 
 parser.add_argument(
     "-a",

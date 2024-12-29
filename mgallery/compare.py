@@ -1,12 +1,13 @@
-import gi
-import os
 import logging
+import os
 
+import gi
 from gi.repository.GLib import GError
 from humanize import naturalsize
 
 from mgallery.database import Database
 from mgallery.settings import GALLERY_PATH, THUMBNAILS_PATH
+
 
 gi.require_version("Gtk", "3.0")
 
@@ -45,37 +46,35 @@ class DuplicatesBox(Gtk.Box):
             image_box_height = 7
 
             image_box = Gtk.Image.new_from_pixbuf(pix_buf)
-            image_box.set_alignment(0, 0.95)
+            image_box.set_alignment(0, 0.95)  # noqa
             grid.attach(image_box, index, 0, 1, image_box_height)
 
             label = Gtk.Label()
             image_size = naturalsize(image["size"], gnu=True)
             label_text = f"<b>{image_size}</b> {image['width']}x{image['height']} "
             label.set_markup(f"<span size='medium'>{label_text}</span>")
-            label.set_alignment(0, 0.05)
+            label.set_alignment(0, 0.05)  # noqa
             grid.attach(label, index, image_box_height + 1, 1, 1)
 
             label = Gtk.Label()
             label_text = image["path"][-30:] or "root"
             label.set_markup(f"<span size='medium'><b>{label_text}</b></span>")
-            label.set_alignment(0, 0.05)
+            label.set_alignment(0, 0.05)  # noqa
             grid.attach(label, index, image_box_height + 2, 1, 1)
 
             label = Gtk.Label()
             label_text = image["name"][-30:]
             label.set_markup(f"<span size='small'>{label_text}</span>")
-            label.set_alignment(0, 0.05)
+            label.set_alignment(0, 0.05)  # noqa
             grid.attach(label, index, image_box_height + 3, 1, 1)
 
             check_box = Gtk.CheckButton(label="delete")
-            check_box.connect(
-                "toggled", self.on_check_toggled, image["path"], image["name"]
-            )
+            check_box.connect("toggled", self.on_check_toggled, image["path"], image["name"])
             grid.attach(check_box, index, image_box_height + 4, 1, 1)
 
-        self.add(grid)
+        self.add(grid)  # noqa
 
-    def on_check_toggled(self, check_box, path, name):
+    def on_check_toggled(self, check_box, path, name):  # noqa
         if check_box.get_active():
             files_to_delete.add((path, name))
         else:
@@ -90,7 +89,7 @@ class DuplicatesGrid(Gtk.Grid):
         self.set_row_spacing(50)
 
         left = top = 0
-        for phash, images in duplicates.items():
+        for _, images in duplicates.items():
             duplicates_box = DuplicatesBox(images)
             self.attach(duplicates_box, left, top, 1, 1)
             left += 1
@@ -99,14 +98,12 @@ class DuplicatesGrid(Gtk.Grid):
                 top += 1
 
 
-class DuplicatesApp(Gtk.VBox):
+class DuplicatesApp(Gtk.VBox):  # noqa
     def __init__(self, database: Database, duplicates: dict):
         super().__init__()
 
         self.database = database
-        self.duplicates = dict(
-            sorted(duplicates.items(), key=lambda item: len(item[1]), reverse=True)
-        )
+        self.duplicates = dict(sorted(duplicates.items(), key=lambda item: len(item[1]), reverse=True))
 
         self.page_size = 9
         self.current_page = 1
@@ -116,7 +113,7 @@ class DuplicatesApp(Gtk.VBox):
         self.add(scrolled_window)
 
         self.stack = Gtk.Stack()
-        self.stack.set_border_width(10)
+        self.stack.set_border_width(10)  # noqa
         for page in range(1, self.total_pages + 1):
             start = (page - 1) * self.page_size
             end = start + self.page_size
@@ -124,7 +121,7 @@ class DuplicatesApp(Gtk.VBox):
             duplicates_grid = DuplicatesGrid(duplicates_slice)
             self.stack.add_titled(duplicates_grid, f"page-{page}", f"{page}")
 
-        scrolled_window.add(self.stack)
+        scrolled_window.add(self.stack)  # noqa
 
         buttons_grid = Gtk.Grid(column_spacing=10, row_spacing=10)
 
@@ -151,7 +148,7 @@ class DuplicatesApp(Gtk.VBox):
 
         self.pack_start(buttons_grid, False, False, 0)
 
-    def delete_images(self, button: Gtk.Button):
+    def delete_images(self, *args, **kwargs):
         for path, name in files_to_delete:
             self.database.delete(path, name)
 
@@ -167,16 +164,12 @@ class DuplicatesApp(Gtk.VBox):
 
             logger.error(f"Can't find a file {file_name}")
 
-    def next_page(self, *args):
-        self.current_page = (
-            self.total_pages
-            if self.current_page == self.total_pages
-            else self.current_page + 1
-        )
+    def next_page(self, *args, **kwargs):
+        self.current_page = self.total_pages if self.current_page == self.total_pages else self.current_page + 1
         self.pagination_label.set_text(f"{self.current_page} / {self.total_pages}")
         self.stack.set_visible_child_name(f"page-{self.current_page}")
 
-    def prev_page(self, *args):
+    def prev_page(self, *args, **kwargs):
         self.current_page = 1 if self.current_page == 1 else self.current_page - 1
         self.pagination_label.set_text(f"{self.current_page} / {self.total_pages}")
         self.stack.set_visible_child_name(f"page-{self.current_page}")
@@ -187,14 +180,12 @@ def run_compare(width: int = 1200, height: int = 800):
     duplicates = database.duplicates()
     logger.info(f"Compare {len(duplicates)} images")
 
-    window = Gtk.Window(
-        title="Duplicated Images", default_width=width, default_height=height
-    )
-    window.set_border_width(20)
+    window = Gtk.Window(title="Duplicated Images", default_width=width, default_height=height)
+    window.set_border_width(20)  # noqa
 
     app = DuplicatesApp(database, duplicates)
-    window.add(app)
+    window.add(app)  # noqa
 
-    window.connect("destroy", Gtk.main_quit)
-    window.show_all()
-    Gtk.main()
+    window.connect("destroy", Gtk.main_quit)  # noqa
+    window.show_all()  # noqa
+    Gtk.main()  # noqa

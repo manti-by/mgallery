@@ -1,13 +1,14 @@
-import cv2
+import logging.config
 import os
-import logging
-import rawpy
 
+import cv2
+import rawpy
 from PIL import Image
 
+from mgallery.database import Database
 from mgallery.phash import get_image_phash
 from mgallery.settings import GALLERY_PATH, THUMBNAILS_PATH
-from mgallery.database import Database
+
 
 logger = logging.getLogger(__name__)
 
@@ -19,9 +20,7 @@ def process_raw_image(database: Database, path: str, name: str, size: int):
             bgr_image = rgb_image[:, :, ::-1]
             phash = get_image_phash(bgr_image)
             width, height = rgb_image.shape[0], rgb_image.shape[1]
-        database.create(
-            path=path, name=name, width=width, height=height, phash=phash, size=size
-        )
+        database.create(path=path, name=name, width=width, height=height, phash=phash, size=size)
     except Exception as e:
         logger.error(e)
 
@@ -33,9 +32,7 @@ def process_rgb_image(database: Database, path: str, name: str, size: int):
         if image is not None:
             phash = get_image_phash(image)
             width, height = image.shape[0], image.shape[1]
-        database.create(
-            path=path, name=name, width=width, height=height, phash=phash, size=size
-        )
+        database.create(path=path, name=name, width=width, height=height, phash=phash, size=size)
     except Exception as e:
         logger.error(e)
 
@@ -70,7 +67,7 @@ def process_image_list(files: list, existing_images: list):
     database = Database()
     for current_file in files:
         name = os.path.basename(current_file)
-        path = os.path.dirname(current_file).replace(GALLERY_PATH, "")[1:]
+        path = str(os.path.dirname(current_file).replace(GALLERY_PATH, ""))
         if f"{path}/{name}" not in existing_images:
             process_image(database, path, name)
             logger.debug(f"Added image {name} to gallery {path or 'root'}")

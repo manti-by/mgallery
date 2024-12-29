@@ -1,8 +1,6 @@
 import re
-
-from typing import AnyStr
-
 from datetime import datetime
+from typing import AnyStr
 
 
 def date_compiler_01(matches: re.Match[AnyStr] | None) -> datetime:

@@ -1,13 +1,13 @@
-import os
-
-import exifread
 import logging
-
+import os
 from datetime import datetime
 from pathlib import Path
 
+import exifread
+
 from mgallery.date_re import DATE_PARSERS
 from mgallery.utils import get_gallery_file_list
+
 
 logger = logging.getLogger(__name__)
 
@@ -17,15 +17,11 @@ def get_datetime_from_exif(name: str) -> datetime | None:
         exif_tags = exifread.process_file(f)
         if "EXIF DateTimeOriginal" in exif_tags:
             try:
-                return datetime.strptime(
-                    str(exif_tags["EXIF DateTimeOriginal"]), "%Y:%m:%d %H:%M:%S"
-                )
+                return datetime.strptime(str(exif_tags["EXIF DateTimeOriginal"]), "%Y:%m:%d %H:%M:%S")
             except ValueError as e:
                 logger.warning(e)
             try:
-                return datetime.strptime(
-                    str(exif_tags["EXIF DateTimeOriginal"]), "%Y:%m:%d %H:%M:%S.%f"
-                )
+                return datetime.strptime(str(exif_tags["EXIF DateTimeOriginal"]), "%Y:%m:%d %H:%M:%S.%f")
             except Exception as e:
                 logger.warning(e)
 
@@ -60,9 +56,7 @@ def run_rename():
             target_file_name = file_info.parent / f"{target_name}{file_info.suffix}"
             while target_file_name.exists():
                 counter += 1
-                target_file_name = (
-                    file_info.parent / f"{target_name}-{counter}{file_info.suffix}"
-                )
+                target_file_name = file_info.parent / f"{target_name}-{counter}{file_info.suffix}"
 
             file_info.rename(target_file_name)
             logger.info(" - file is renamed")

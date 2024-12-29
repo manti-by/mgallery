@@ -5,6 +5,7 @@ from mgallery.database import Database
 from mgallery.image import create_thumbnail
 from mgallery.settings import NUM_PROCESSES
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -32,9 +33,7 @@ def create_thumbnails(duplicates: dict, process_index: int):
                 continue
 
             if (counter := counter + 1) % 500 == 0:
-                logger.info(
-                    f"Processed {counter} thumbnails in thread #{process_index}"
-                )
+                logger.info(f"Processed {counter} thumbnails in thread #{process_index}")
 
 
 def run_thumbnails(num_cores: int = NUM_PROCESSES):
@@ -42,9 +41,7 @@ def run_thumbnails(num_cores: int = NUM_PROCESSES):
     with futures.ProcessPoolExecutor(max_workers=num_cores) as executor:
         processes = []
         for i in range(num_cores):
-            processes.append(
-                executor.submit(create_thumbnails, duplicates_chunks[i], i)
-            )
+            processes.append(executor.submit(create_thumbnails, duplicates_chunks[i], i))
 
     for _ in futures.as_completed(processes):
         """Wait while all processes will be completed"""

@@ -1,6 +1,6 @@
 from setuptools import glob
 
-from mgallery.settings import GALLERY_PATH, FILE_TYPES
+from mgallery.settings import FILE_TYPES, GALLERY_PATH
 
 
 def binary_array_to_hex(binary_array: list, hash_size: int = 8) -> str:

@@ -1,10 +1,10 @@
 import logging
-
 from datetime import datetime
 from pathlib import Path
 
 from mgallery.settings import GALLERY_PATH
 from mgallery.utils import get_gallery_file_list
+
 
 logger = logging.getLogger(__name__)
 
@@ -43,9 +43,7 @@ def run_resort():
             target_file_name = target_directory / f"{file_info.stem}{file_info.suffix}"
             while target_file_name.exists():
                 counter += 1
-                target_file_name = (
-                    target_directory / f"{file_info.stem}-{counter}{file_info.suffix}"
-                )
+                target_file_name = target_directory / f"{file_info.stem}-{counter}{file_info.suffix}"
 
             file_info.rename(target_file_name)
             logger.info(" - file is moved")

@@ -1,0 +1,45 @@
+fail_fast: true
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: fix-byte-order-marker
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: detect-private-key
+      - id: requirements-txt-fixer
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.18.0
+    hooks:
+      - id: pyupgrade
+        args: [--py312-plus]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.7.0
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  # Search common security issues in Python code
+  - repo: local
+    hooks:
+    - id: bandit
+      name: bandit
+      entry: bandit
+      language: python
+      language_version: python3.12
+      types: [ python ]
+      args: [-c, pyproject.toml]
+      additional_dependencies: ["bandit[toml]"]
+
+  # Linting for Django templates
+  - repo: https://github.com/thibaudcolas/curlylint
+    rev: v0.13.1
+    hooks:
+      - id: curlylint
+        types: [ file ]
+        files: \.(html|sls)$
+        language_version: python3.12
+        additional_dependencies: [click<8.1]

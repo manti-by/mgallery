@@ -1,11 +1,17 @@
 flush-db:
 	redis-cli -n 5 FLUSHALL
 
+clean-dirs:
+	rm -rf /var/mgallery/thumbnails/*
+	rm -rf /var/log/mgallery/*
+
 make-dirs:
 	sudo mkdir -p /var/mgallery/thumbnails && \
-	sudo chown manti:manti /var/mgallery/thumbnails
+	sudo chown manti:manti /var/mgallery/thumbnails && \
+	sudo mkdir -p /var/log/mgallery && \
+	sudo chown manti:manti /var/log/mgallery
 
-setup: flush-db make-dirs
+setup: flush-db clean-dirs make-dirs
 
 autodelete:
 	python mgallery.py -a
@@ -29,8 +35,12 @@ thumbnails:
 	python mgallery.py -t
 
 check:
-	black .
-	flake8 .
+	git add .
+	pre-commit run
 
-update-requirements:
+pip:
+	uv pip install -r requirements.txt
+
+update:
 	pcu requirements.txt -u
+	pre-commit autoupdate
