@@ -12,12 +12,7 @@ def run_autodelete():
     database = Database()
     for _, images in database.duplicates().items():
         images = sorted(images, key=lambda x: x["size"], reverse=True)
-        target = images[1]
         for image in images[1:]:
-            if image["phash"] == target["phash"]:
-                logger.info("Target and current images have the same size")
-                continue
-
             database.delete(image["path"], image["name"])
 
             thumbnail_name = f"{THUMBNAILS_PATH}/{image['path']}/{image['name']}.jpg"
