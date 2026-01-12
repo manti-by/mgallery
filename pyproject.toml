@@ -1,3 +1,32 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mgallery"
+version = "0.1.0"
+description = "Image deduplicate script"
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+license = {text = "BSD-3-Clause"}
+authors = [{name = "manti"}]
+dependencies = [
+    "exifread>=3.5.1",
+    "humanize>=4.13.0",
+    "ipython>=9.6.0",
+    "numpy>=2.3.3",
+    "pillow>=11.3.0",
+    "pre-commit>=4.3.0",
+    "pycairo>=1.28.0",
+    "PyGObject>=3.54.3",
+    "PyGObject-stubs>=2.13.0",
+    "rawpy>=0.25.1",
+    "redis>=6.4.0",
+]
+
+[project.scripts]
+mgallery = "mgallery.mgallery:main"
+
 [tool.bandit]
 exclude_dirs = [
     "mgallery/settings.py"
@@ -6,27 +35,22 @@ skips = ["B308"]
 
 [tool.black]
 line-length = 120
-target_version = ["py312"]
+target_version = ["py313"]
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
   | \.pytest_cache
+  | \.ruff_cache
   | \.venv
-  | _build
   | build
-  | dist
 )/
 '''
-
-[tool.curlylint.rules]
-indent = 2
-html_has_lang = true
 
 [tool.ruff]
 line-length = 120
 indent-width = 4
-target-version = "py312"
+target-version = "py313"
 
 [tool.ruff.lint]
 select = [

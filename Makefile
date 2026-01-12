@@ -1,3 +1,7 @@
+install:
+	sudo apt install -y pkg-config python3-dev libraw-dev
+	sudo apt install -y python3-gi python3-gi-cairo gir1.2-gtk-3.0 libgirepository-2.0-dev gcc libcairo2-dev
+
 flush-db:
 	redis-cli -n 5 FLUSHALL
 
@@ -14,33 +18,36 @@ make-dirs:
 setup: flush-db clean-dirs make-dirs
 
 autodelete:
-	python mgallery.py -a
-
-dump:
-	python mgallery.py -d
+	uv run mgallery.py -a
 
 scan:
-	python mgallery.py -s
+	uv run mgallery.py -s
+
+autoclean: setup scan autodelete
+
+dump:
+	uv run mgallery.py -d
 
 compare:
-	python mgallery.py -c
+	uv run mgallery.py -c
 
 rename:
-	python mgallery.py -r
+	uv run mgallery.py -r
 
 resort:
-	python mgallery.py -o
+	uv run mgallery.py -o
 
 thumbnails:
-	python mgallery.py -t
+	uv run mgallery.py -t
 
 check:
 	git add .
-	pre-commit run
+	uv run pre-commit run
 
 pip:
-	uv pip install -r requirements.txt
+	uv sync --all-extras --dev
 
 update:
-	pcu requirements.txt -u
-	pre-commit autoupdate
+	uv run uv-bump
+	uv sync --all-extras --dev
+	uv run pre-commit autoupdate
