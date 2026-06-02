@@ -1,7 +1,13 @@
+from __future__ import annotations
+
 import logging.config
 import os
+from typing import TYPE_CHECKING
 
-import cv2
+
+if TYPE_CHECKING:
+    import cv2
+
 import rawpy
 from PIL import Image
 
@@ -21,7 +27,7 @@ def process_raw_image(database: Database, path: str, name: str, size: int):
             phash = get_image_phash(bgr_image)
             width, height = rgb_image.shape[0], rgb_image.shape[1]
         database.create(path=path, name=name, width=width, height=height, phash=phash, size=size)
-    except Exception as e:
+    except OSError as e:
         logger.error(e)
 
 
@@ -33,7 +39,7 @@ def process_rgb_image(database: Database, path: str, name: str, size: int):
             phash = get_image_phash(image)
             width, height = image.shape[0], image.shape[1]
         database.create(path=path, name=name, width=width, height=height, phash=phash, size=size)
-    except Exception as e:
+    except OSError as e:
         logger.error(e)
 
 

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "command": {
+    "review-changes": {
+      "template": "Check existing changes for potential bugs and security issues",
+      "description": "Review existing changes",
+      "agent": "review-agent"
+    }
+  },
+  "lsp": {
+    "pyright": {
+      "disabled": true
+    },
+    "ty": {
+      "command": ["uvx", "ty", "server"],
+      "extensions": [".py", ".pyi"]
+    }
+  }
+}

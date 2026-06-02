@@ -42,12 +42,15 @@ thumbnails:
 
 check:
 	git add .
+	uv run ty check
 	uv run pre-commit run
 
-pip:
+install:
 	uv sync --all-extras --dev
 
 update:
 	uv run uv-bump
 	uv sync --all-extras --dev
 	uv run pre-commit autoupdate
+
+ci: install check

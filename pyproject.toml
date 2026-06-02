@@ -1,51 +1,36 @@
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "mgallery"
-version = "0.1.0"
+version = "0.2.0"
 description = "Image deduplicate script"
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
-license = {text = "BSD-3-Clause"}
-authors = [{name = "manti"}]
 dependencies = [
     "exifread>=3.5.1",
-    "humanize>=4.13.0",
-    "ipython>=9.6.0",
-    "numpy>=2.3.3",
-    "pillow>=11.3.0",
-    "pre-commit>=4.3.0",
-    "pycairo>=1.28.0",
+    "humanize>=4.15.0",
+    "ipython>=9.14.0",
+    "numpy>=2.4.6",
+    "opencv-python>=4.10.0",
+    "pillow>=12.2.0",
+    "pre-commit>=4.6.0",
+    "pycairo>=1.29.0",
     "PyGObject>=3.54.3",
     "PyGObject-stubs>=2.13.0",
-    "rawpy>=0.25.1",
-    "redis>=6.4.0",
+    "rawpy>=0.27.0",
+    "redis>=8.0.0",
+    "setuptools>=82.0.1",
+    "ty>=0.0.42",
 ]
 
-[project.scripts]
-mgallery = "mgallery.mgallery:main"
+[dependency-groups]
+dev = [
+    "uv-bump>=0.5.0",
+]
 
 [tool.bandit]
 exclude_dirs = [
-    "mgallery/settings.py"
+    "mgallery/settings.py",
 ]
-skips = ["B308"]
-
-[tool.black]
-line-length = 120
-target_version = ["py313"]
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.pytest_cache
-  | \.ruff_cache
-  | \.venv
-  | build
-)/
-'''
+skips = ["B101", "B308", "B703"]
 
 [tool.ruff]
 line-length = 120
@@ -54,35 +39,31 @@ target-version = "py313"
 
 [tool.ruff.lint]
 select = [
-    "E", # pycodestyle
-    "F", # Pyflakes
-    "N", # pep8-naming
-    "UP", # pyupgrade
-    "B", # flake8-bugbear
-    "S", # flake8-bandit
-    "A", # flake8-builtins
-    "DJ", # flake8-django
-    "I", # isort
-    "INP", # flake8-no-pep420
-    "RUF" # Ruff-specific rules
+    "E",  # pycodestyle
+    "F",  # Pyflakes
+    "N",  # pep8-naming
+    "UP",  # pyupgrade
+    "B",  # flake8-bugbear
+    "S",  # flake8-bandit
+    "BLE",  # flake8-blind-except
+    "A",  # flake8-builtins
+    "DJ",  # flake8-django
+    "I",  # isort
+    "INP",  # flake8-no-pep420
+    "RUF"  # Ruff-specific rules
 ]
 exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
     ".git",
-    ".git-rewrite",
-    ".mypy_cache",
-    ".pytype",
+    ".idea",
+    ".vscode",
+    ".pytest_cache",
     ".ruff_cache",
     ".venv",
-    "venv",
-    "__pypackages__",
-    "mgallery/settings.py"
+    "stubs",
 ]
 ignore = [
-    # Disable eradicate (commented code removal)
-    "ERA001",
+    "DJ001",  # Null values for model char fields
+    "ERA001",  # Disable eradicate (commented code removal)
     # Disable Conflicting lint rules,
     # see https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
     "W191",
@@ -104,19 +85,18 @@ ignore = [
     "RUF100",
     "RUF012",  # Mutable class attributes should be annotated with `typing.ClassVar`
     "N806",  # Variable `CONSTANT_NAME` in function should be lowercase
-    "DJ001",  # Avoid using `null=True` on string-based fields such as `CharField`
+    "N802",  # Function name should be lowercase (needed for cv2 stubs)
 ]
 
 [tool.ruff.lint.pycodestyle]
 ignore-overlong-task-comments = true
 
 [tool.ruff.lint.isort]
-section-order = ["future", "standard-library", "django", "third-party", "first-party", "local-folder"]
+section-order = ["future", "standard-library", "third-party", "first-party", "mgallery", "local-folder"]
 lines-after-imports = 2
 
 [tool.ruff.lint.isort.sections]
-# Group all Django imports into a separate section.
-"django" = ["django"]
+"mgallery" = ["mgallery"]
 
 [tool.ruff.lint.per-file-ignores]
 # Ignore "E402", "F403", "F405" (import violations) in __init__.py files.
@@ -127,3 +107,26 @@ lines-after-imports = 2
 "**/*test*.py" = ["E402", "F403", "F405", "S", "N802"]
 "**/{settings}/*" = ["E402", "F403", "F405"]
 "**/migrations/*" = ["RUF", "I"]
+
+[tool.pytest.ini_options]
+log_cli = true
+log_cli_format = "%(levelname)s %(asctime)s %(message)s"
+asyncio_mode = "auto"
+addopts = '-p no:warnings --color=yes'
+norecursedirs = '''
+.git
+.github
+.pytest_cache
+.ruff_cache
+.venv
+'''
+
+[tool.ty.src]
+exclude = [
+    ".git",
+    ".idea",
+    ".vscode",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+]

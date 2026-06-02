@@ -10,8 +10,10 @@ class Database:
     def __init__(self):
         self.client = redis.from_url(REDIS_URL)
 
-    def get(self, key: str) -> dict:
-        return json.loads(self.client.get(key))
+    def get(self, key: str | bytes) -> dict:
+        if data := self.client.get(key):
+            return json.loads(data)
+        return {}
 
     def all(self, pattern: str = "*") -> list:
         return [self.get(key) for key in self.client.keys(pattern)]
@@ -27,10 +29,10 @@ class Database:
         self,
         path: str,
         name: str,
-        phash: str = None,
-        width: int = None,
-        height: int = None,
-        size: int = None,
+        phash: str | None = None,
+        width: int | None = None,
+        height: int | None = None,
+        size: int | None = None,
     ):
         key = f"{phash}-{path}/{name}"
         value = json.dumps(

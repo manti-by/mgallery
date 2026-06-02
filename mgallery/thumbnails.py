@@ -1,5 +1,6 @@
 import logging
 from concurrent import futures
+from typing import Any
 
 from mgallery.database import Database
 from mgallery.image import create_thumbnail
@@ -9,7 +10,7 @@ from mgallery.settings import NUM_PROCESSES
 logger = logging.getLogger(__name__)
 
 
-def get_duplicates_chunks(num_cores: int = NUM_PROCESSES) -> list[dict[str, dict]]:
+def get_duplicates_chunks(num_cores: int = NUM_PROCESSES) -> list[dict[str, Any]]:
     duplicates = Database().duplicates()
     logger.info(f"Found {len(duplicates)} duplicates")
 
@@ -28,7 +29,7 @@ def create_thumbnails(duplicates: dict, process_index: int):
                 continue
             try:
                 create_thumbnail(image["path"], image["name"])
-            except Exception as e:
+            except (OSError, ValueError) as e:
                 logger.error(e)
                 continue
 

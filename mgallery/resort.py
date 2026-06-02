@@ -47,5 +47,5 @@ def run_resort():
 
             file_info.rename(target_file_name)
             logger.info(" - file is moved")
-        except Exception as e:
+        except OSError as e:
             logger.error(e)

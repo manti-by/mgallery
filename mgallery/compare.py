@@ -39,40 +39,40 @@ class DuplicatesBox(Gtk.Box):
             except GError:
                 logger.warning(f"Can't open an image {image['path']}/{image['name']}")
                 continue
-            except Exception as e:
+            except OSError as e:
                 logger.error(e)
                 continue
 
             image_box_height = 7
 
             image_box = Gtk.Image.new_from_pixbuf(pix_buf)
-            image_box.set_alignment(0, 0.95)  # noqa
+            image_box.set_alignment(0, 0.95)  # type: ignore
             grid.attach(image_box, index, 0, 1, image_box_height)
 
             label = Gtk.Label()
             image_size = naturalsize(image["size"], gnu=True)
             label_text = f"<b>{image_size}</b> {image['width']}x{image['height']} "
             label.set_markup(f"<span size='medium'>{label_text}</span>")
-            label.set_alignment(0, 0.05)  # noqa
+            label.set_alignment(0, 0.05)  # type: ignore
             grid.attach(label, index, image_box_height + 1, 1, 1)
 
             label = Gtk.Label()
             label_text = image["path"][-30:] or "root"
             label.set_markup(f"<span size='medium'><b>{label_text}</b></span>")
-            label.set_alignment(0, 0.05)  # noqa
+            label.set_alignment(0, 0.05)  # type: ignore
             grid.attach(label, index, image_box_height + 2, 1, 1)
 
             label = Gtk.Label()
             label_text = image["name"][-30:]
             label.set_markup(f"<span size='small'>{label_text}</span>")
-            label.set_alignment(0, 0.05)  # noqa
+            label.set_alignment(0, 0.05)  # type: ignore
             grid.attach(label, index, image_box_height + 3, 1, 1)
 
             check_box = Gtk.CheckButton(label="delete")
             check_box.connect("toggled", self.on_check_toggled, image["path"], image["name"])
             grid.attach(check_box, index, image_box_height + 4, 1, 1)
 
-        self.add(grid)  # noqa
+        self.add(grid)  # type: ignore
 
     def on_check_toggled(self, check_box, path, name):  # noqa
         if check_box.get_active():
@@ -98,9 +98,9 @@ class DuplicatesGrid(Gtk.Grid):
                 top += 1
 
 
-class DuplicatesApp(Gtk.VBox):  # noqa
+class DuplicatesApp(Gtk.Box):  # type: ignore[misc,valid-type]
     def __init__(self, database: Database, duplicates: dict):
-        super().__init__()
+        super().__init__(orientation=Gtk.Orientation.VERTICAL)
 
         self.database = database
         self.duplicates = dict(sorted(duplicates.items(), key=lambda item: len(item[1]), reverse=True))
@@ -110,10 +110,10 @@ class DuplicatesApp(Gtk.VBox):  # noqa
         self.total_pages = len(duplicates) // self.page_size + 1
 
         scrolled_window = Gtk.ScrolledWindow()
-        self.add(scrolled_window)
+        self.add(scrolled_window)  # type: ignore
 
         self.stack = Gtk.Stack()
-        self.stack.set_border_width(10)  # noqa
+        self.stack.set_border_width(10)  # type: ignore
         for page in range(1, self.total_pages + 1):
             start = (page - 1) * self.page_size
             end = start + self.page_size
@@ -121,7 +121,7 @@ class DuplicatesApp(Gtk.VBox):  # noqa
             duplicates_grid = DuplicatesGrid(duplicates_slice)
             self.stack.add_titled(duplicates_grid, f"page-{page}", f"{page}")
 
-        scrolled_window.add(self.stack)  # noqa
+        scrolled_window.add(self.stack)  # type: ignore
 
         buttons_grid = Gtk.Grid(column_spacing=10, row_spacing=10)
 
@@ -146,7 +146,7 @@ class DuplicatesApp(Gtk.VBox):  # noqa
         next_page_button.connect("clicked", self.next_page)
         buttons_grid.attach(next_page_button, 75, 0, 10, 1)
 
-        self.pack_start(buttons_grid, False, False, 0)
+        self.pack_start(buttons_grid, False, False, 0)  # type: ignore
 
     def delete_images(self, *args, **kwargs):
         for path, name in files_to_delete:
@@ -181,11 +181,11 @@ def run_compare(width: int = 1200, height: int = 800):
     logger.info(f"Compare {len(duplicates)} images")
 
     window = Gtk.Window(title="Duplicated Images", default_width=width, default_height=height)
-    window.set_border_width(20)  # noqa
+    window.set_border_width(20)  # type: ignore
 
     app = DuplicatesApp(database, duplicates)
-    window.add(app)  # noqa
+    window.add(app)  # type: ignore
 
-    window.connect("destroy", Gtk.main_quit)  # noqa
-    window.show_all()  # noqa
-    Gtk.main()  # noqa
+    window.connect("destroy", Gtk.main_quit)  # type: ignore
+    window.show_all()  # type: ignore
+    Gtk.main()  # type: ignore

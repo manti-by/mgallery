@@ -22,7 +22,7 @@ def get_datetime_from_exif(name: str) -> datetime | None:
                 logger.warning(e)
             try:
                 return datetime.strptime(str(exif_tags["EXIF DateTimeOriginal"]), "%Y:%m:%d %H:%M:%S.%f")
-            except Exception as e:
+            except ValueError as e:
                 logger.warning(e)
 
 
@@ -32,7 +32,7 @@ def get_datetime_from_filename(name: str) -> datetime | None:
             matches = regex.search(name)
             if matches:
                 return func(matches)
-        except Exception as e:
+        except (ValueError, TypeError) as e:
             logger.error(e)
 
 
@@ -60,5 +60,5 @@ def run_rename():
 
             file_info.rename(target_file_name)
             logger.info(" - file is renamed")
-        except Exception as e:
+        except OSError as e:
             logger.error(e)
