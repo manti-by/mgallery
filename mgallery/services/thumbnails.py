@@ -2,9 +2,10 @@ import logging
 from concurrent import futures
 from typing import Any
 
-from mgallery.database import Database
-from mgallery.image import create_thumbnail
-from mgallery.settings import NUM_PROCESSES
+from mgallery.library.database import Database
+from mgallery.library.image import create_thumbnail
+
+from mgallery.utils.settings import NUM_PROCESSES
 
 
 logger = logging.getLogger(__name__)

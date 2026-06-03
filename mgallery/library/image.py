@@ -11,9 +11,10 @@ if TYPE_CHECKING:
 import rawpy
 from PIL import Image
 
-from mgallery.database import Database
-from mgallery.phash import get_image_phash
-from mgallery.settings import GALLERY_PATH, THUMBNAILS_PATH
+from mgallery.library.database import Database
+from mgallery.library.phash import get_image_phash
+
+from mgallery.utils.settings import GALLERY_PATH, THUMBNAILS_PATH
 
 
 logger = logging.getLogger(__name__)

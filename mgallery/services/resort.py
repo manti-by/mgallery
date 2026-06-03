@@ -2,8 +2,8 @@ import logging
 from datetime import datetime
 from pathlib import Path
 
-from mgallery.settings import GALLERY_PATH
-from mgallery.utils import get_gallery_file_list
+from mgallery.utils.settings import GALLERY_PATH
+from mgallery.utils.utils import get_gallery_file_list
 
 
 logger = logging.getLogger(__name__)

@@ -3,7 +3,7 @@ import logging
 import cv2
 import numpy
 
-from mgallery.utils import binary_array_to_hex
+from mgallery.utils.utils import binary_array_to_hex
 
 
 logger = logging.getLogger(__name__)

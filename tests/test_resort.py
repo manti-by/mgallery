@@ -2,7 +2,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from mgallery.resort import get_path_from_filename, month_to_season
+from mgallery.services.resort import get_path_from_filename, month_to_season
 
 
 class TestMonthToSeason:
@@ -11,6 +11,7 @@ class TestMonthToSeason:
         result = month_to_season(month)
         assert result == expected
 
+
 class TestGetPathFromFilename:
     def test_get_path_from_filename_winter(self):
         result = get_path_from_filename("2024-01-15_10-30-00.jpg")
@@ -18,12 +19,13 @@ class TestGetPathFromFilename:
         assert gallery == "2024 Зима"
         assert date == "2024-01-15"
 
+
 class TestRunResort:
-    @patch("mgallery.resort.get_gallery_file_list")
-    @patch("mgallery.resort.Path")
+    @patch("mgallery.services.resort.get_gallery_file_list")
+    @patch("mgallery.services.resort.Path")
     def test_run_resort(self, mock_path_cls, mock_get_files):
         mock_get_files.return_value = []
         mock_path_cls.return_value.mkdir = MagicMock()
-        from mgallery.resort import run_resort
+        from mgallery.services.resort import run_resort
         run_resort()
         mock_get_files.assert_called_once()

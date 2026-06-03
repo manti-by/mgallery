@@ -2,12 +2,12 @@ from unittest.mock import patch
 
 import numpy as np
 
-from mgallery.phash import get_image_phash
+from mgallery.library.phash import get_image_phash
 
 
 class TestGetImagePhash:
-    @patch("mgallery.phash.cv2")
-    @patch("mgallery.phash.numpy")
+    @patch("mgallery.library.phash.cv2")
+    @patch("mgallery.library.phash.numpy")
     def test_get_image_phash_success(self, mock_numpy, mock_cv2):
         mock_image = np.ones((24, 24, 3), dtype=np.uint8)
         mock_numpy.asarray.return_value = mock_image
@@ -20,16 +20,16 @@ class TestGetImagePhash:
         assert result is not None
         assert isinstance(result, str)
 
-    @patch("mgallery.phash.cv2")
-    @patch("mgallery.phash.numpy")
+    @patch("mgallery.library.phash.cv2")
+    @patch("mgallery.library.phash.numpy")
     def test_get_image_phash_with_none_image(self, mock_numpy, mock_cv2):
         mock_numpy.asarray.side_effect = ValueError("image is None")
         mock_image = np.array([])
         result = get_image_phash(mock_image)
         assert result is None
 
-    @patch("mgallery.phash.cv2")
-    @patch("mgallery.phash.numpy")
+    @patch("mgallery.library.phash.cv2")
+    @patch("mgallery.library.phash.numpy")
     def test_get_image_phash_with_wrong_size(self, mock_numpy, mock_cv2):
         mock_image = np.ones((10, 10, 3), dtype=np.uint8)
         mock_numpy.asarray.return_value = mock_image

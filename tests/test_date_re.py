@@ -1,6 +1,6 @@
 import re
 
-from mgallery.date_re import DATE_PARSERS, date_compiler_01, date_compiler_02, date_compiler_03, date_compiler_04
+from mgallery.utils.date_re import DATE_PARSERS, date_compiler_01, date_compiler_02, date_compiler_03, date_compiler_04
 
 
 class TestDateCompiler01:
@@ -12,6 +12,7 @@ class TestDateCompiler01:
         assert result.year == 2017
         assert result.month == 1
 
+
 class TestDateCompiler02:
     def test_20171222_232414(self):
         pattern = re.compile(r"(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_(?P<hours>\d{2})(?P<minutes>\d{2})(?P<seconds>\d{2}).*")
@@ -19,6 +20,7 @@ class TestDateCompiler02:
         assert match is not None
         result = date_compiler_02(match)
         assert result.year == 2017
+
 
 class TestDateCompiler03:
     def test_p61126_233638(self):
@@ -28,6 +30,7 @@ class TestDateCompiler03:
         result = date_compiler_03(match)
         assert result.year == 2016
 
+
 class TestDateCompiler04:
     def test_img_20140803_075125(self):
         pattern = re.compile(r"(IMG|VID|PANO)_(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_(?P<hours>\d{2})(?P<minutes>\d{2})(?P<seconds>\d{2}).*")
@@ -35,6 +38,7 @@ class TestDateCompiler04:
         assert match is not None
         result = date_compiler_04(match)
         assert result.year == 2014
+
 
 class TestDateParsers:
     def test_date_parsers_not_empty(self):

@@ -3,7 +3,7 @@ from collections import defaultdict
 
 import redis
 
-from mgallery.settings import REDIS_URL
+from mgallery.utils.settings import REDIS_URL
 
 
 class Database:
