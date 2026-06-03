@@ -5,8 +5,8 @@ from pathlib import Path
 
 import exifread
 
-from mgallery.date_re import DATE_PARSERS
-from mgallery.utils import get_gallery_file_list
+from mgallery.utils.date_re import DATE_PARSERS
+from mgallery.utils.utils import get_gallery_file_list
 
 
 logger = logging.getLogger(__name__)

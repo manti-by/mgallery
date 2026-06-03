@@ -1,8 +1,9 @@
 import logging
 import os
 
-from mgallery.database import Database
-from mgallery.settings import GALLERY_PATH, THUMBNAILS_PATH
+from mgallery.library.database import Database
+
+from mgallery.utils.settings import GALLERY_PATH, THUMBNAILS_PATH
 
 
 logger = logging.getLogger(__name__)

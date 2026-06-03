@@ -5,8 +5,9 @@ import gi
 from gi.repository.GLib import GError
 from humanize import naturalsize
 
-from mgallery.database import Database
-from mgallery.settings import GALLERY_PATH, THUMBNAILS_PATH
+from mgallery.library.database import Database
+
+from mgallery.utils.settings import GALLERY_PATH, THUMBNAILS_PATH
 
 
 gi.require_version("Gtk", "3.0")

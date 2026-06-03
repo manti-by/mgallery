@@ -1,7 +1,7 @@
 import json
 import logging
 
-from mgallery.database import Database
+from mgallery.library.database import Database
 
 
 logger = logging.getLogger(__name__)

@@ -2,7 +2,7 @@
 import argparse
 import logging.config
 
-from mgallery.settings import LOGGING
+from mgallery.utils.settings import LOGGING
 
 
 logging.config.dictConfig(LOGGING)
@@ -62,32 +62,32 @@ parser.add_argument(
 if __name__ == "__main__":
     args = parser.parse_args()
     if args.autodelete:
-        from mgallery.autodelete import run_autodelete
+        from mgallery.services.autodelete import run_autodelete
 
         run_autodelete()
     elif args.dump:
-        from mgallery.dump import run_dump
+        from mgallery.services.dump import run_dump
 
         run_dump()
     elif args.scan:
-        from mgallery.scanner import run_scanner
+        from mgallery.services.scanner import run_scanner
 
         run_scanner()
     elif args.compare:
-        from mgallery.compare import run_compare
+        from mgallery.services.compare import run_compare
 
         run_compare()
     elif args.rename:
-        from mgallery.rename import run_rename
+        from mgallery.services.rename import run_rename
 
         run_rename()
     elif args.resort:
-        from mgallery.resort import run_resort
+        from mgallery.services.resort import run_resort
 
         run_resort()
 
     elif args.thumbnails:
-        from mgallery.thumbnails import run_thumbnails
+        from mgallery.services.thumbnails import run_thumbnails
 
         run_thumbnails()
     else:

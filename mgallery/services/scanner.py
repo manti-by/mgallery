@@ -1,10 +1,11 @@
 import logging
 from concurrent import futures
 
-from mgallery.database import Database
-from mgallery.image import process_image_list
-from mgallery.settings import GALLERY_PATH, NUM_PROCESSES
-from mgallery.utils import get_gallery_file_list
+from mgallery.library.database import Database
+from mgallery.library.image import process_image_list
+
+from mgallery.utils.settings import GALLERY_PATH, NUM_PROCESSES
+from mgallery.utils.utils import get_gallery_file_list
 
 
 logger = logging.getLogger(__name__)
