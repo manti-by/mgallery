@@ -2,9 +2,6 @@ install:
 	sudo apt install -y pkg-config python3-dev libraw-dev
 	sudo apt install -y python3-gi python3-gi-cairo gir1.2-gtk-3.0 libgirepository-2.0-dev gcc libcairo2-dev
 
-flush-db:
-	redis-cli -n 5 FLUSHALL
-
 clean-dirs:
 	rm -rf /var/mgallery/thumbnails/*
 	rm -rf /var/log/mgallery/*
@@ -15,7 +12,13 @@ make-dirs:
 	sudo mkdir -p /var/log/mgallery && \
 	sudo chown manti:manti /var/log/mgallery
 
-setup: flush-db clean-dirs make-dirs
+migrate:
+	uv run alembic upgrade head
+
+migrate-create:
+	uv run alembic revision --autogenerate -m "$(message)"
+
+setup: clean-dirs make-dirs
 
 autodelete:
 	uv run mgallery.py -a

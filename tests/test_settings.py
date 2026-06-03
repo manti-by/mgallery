@@ -3,9 +3,9 @@ def test_thumbnails_path_set():
     assert settings.THUMBNAILS_PATH
 
 
-def test_redis_url_set():
+def test_database_url_set():
     from mgallery.utils import settings
-    assert settings.REDIS_URL
+    assert settings.DATABASE_URL
 
 
 def test_file_types():
