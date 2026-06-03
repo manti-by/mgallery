@@ -23,6 +23,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "pytest>=8.3.0",
     "uv-bump>=0.5.0",
 ]
 
