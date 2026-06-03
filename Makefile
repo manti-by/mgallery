@@ -53,4 +53,7 @@ update:
 	uv sync --all-extras --dev
 	uv run pre-commit autoupdate
 
-ci: install check
+ci: install check test
+
+test:
+	uv run pytest tests/
