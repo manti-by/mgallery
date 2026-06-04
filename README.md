@@ -54,3 +54,49 @@ Script setup
    make scan
    make compare
    ```
+
+Image tagging
+----
+
+The `-p` flag sends a local image to a locally running Ollama vision model
+(default `gemma3:12b`) and prints a normalized JSON list of tags to stdout.
+The model is queried via the [`ollama`](https://github.com/ollama/ollama-python)
+Python client with `format="json"` and a low temperature for stable output.
+Tags are lowercased, trimmed, deduplicated, and capped at 20 entries.
+
+Requirements:
+
+- A running Ollama daemon with the `gemma3:12b` model pulled locally:
+  ```bash
+  ollama serve &
+  ollama pull gemma3:12b
+  ```
+
+Environment variables:
+
+- `OLLAMA_HOST` (default `http://localhost:11434`) — Ollama API base URL.
+- `OLLAMA_MODEL` (default `gemma3:12b`) — vision model to use.
+
+Examples:
+
+```bash
+# Tag a single image with the default model
+uv run mgallery.py -p /path/to/photo.jpg
+
+# Override the model
+uv run mgallery.py -p /path/to/photo.jpg -m llama3.2-vision:11b
+```
+
+Sample output (machine-readable JSON, ready to pipe into another tool):
+
+```json
+{"tags": ["sunset", "beach", "sea", "orange sky", "horizon"]}
+```
+
+The script fails with a clear error message on stderr and a non-zero exit
+code when:
+
+- the image file does not exist;
+- Ollama is not running at `OLLAMA_HOST`;
+- the requested model is not installed locally;
+- the model returns a response that cannot be parsed as the expected JSON.

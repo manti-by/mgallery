@@ -58,6 +58,20 @@ parser.add_argument(
     default=False,
     help="Create thumbnails for duplicated images",
 )
+parser.add_argument(
+    "-p",
+    "--path",
+    type=str,
+    default=None,
+    help="Tag a local image with a local Ollama vision model and print tags as JSON",
+)
+parser.add_argument(
+    "-m",
+    "--model",
+    type=str,
+    default=None,
+    help="Ollama vision model to use for tagging (default: gemma3:12b, or $OLLAMA_MODEL)",
+)
 
 if __name__ == "__main__":
     args = parser.parse_args()
@@ -90,5 +104,9 @@ if __name__ == "__main__":
         from mgallery.services.thumbnails import run_thumbnails
 
         run_thumbnails()
+    elif args.path:
+        from mgallery.tag import DEFAULT_MODEL, run_tag
+
+        run_tag(image_path=args.path, model=args.model or DEFAULT_MODEL)
     else:
         parser.print_help()

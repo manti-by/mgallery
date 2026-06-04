@@ -8,6 +8,7 @@ dependencies = [
     "exifread>=3.5.1",
     "humanize>=4.15.0",
     "numpy>=2.4.6",
+    "ollama>=0.4.0",
     "opencv-python>=4.10.0",
     "pillow>=12.2.0",
     "pycairo>=1.29.0",
