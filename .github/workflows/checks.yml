@@ -14,6 +14,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Install Cairo on Ubuntu
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libraw-dev libcairo2-dev
+
       - name: Check out the repository
         uses: actions/checkout@v4
 
