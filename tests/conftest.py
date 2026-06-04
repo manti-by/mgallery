@@ -1,11 +1,9 @@
-from unittest.mock import MagicMock
+from sqlalchemy import create_engine
 
-import pytest
+from mgallery.library.tables import Base
 
 
-@pytest.fixture
-def mock_redis_client() -> MagicMock:
-    client = MagicMock()
-    client.get.return_value = None
-    client.keys.return_value = []
-    return client
+def create_test_engine():
+    engine = create_engine("sqlite:///:memory:", echo=False)
+    Base.metadata.create_all(engine)
+    return engine

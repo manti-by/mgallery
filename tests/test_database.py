@@ -1,71 +1,69 @@
-import json
-from unittest.mock import patch
+import pytest
+
+from tests.conftest import create_test_engine
 
 from mgallery.library.database import Database
 
 
+@pytest.fixture
+def test_engine():
+    return create_test_engine()
+
+
+@pytest.fixture
+def database(test_engine):
+    return Database(engine=test_engine)
+
+
 class TestDatabase:
-    def test_database_init(self, mock_redis_client):
-        with patch("mgallery.library.database.redis") as mock_redis:
-            mock_redis.from_url.return_value = mock_redis_client
-            Database()
-            mock_redis.from_url.assert_called_once()
+    def test_database_init(self, test_engine):
+        db = Database(engine=test_engine)
+        assert db._engine is test_engine
 
-    def test_get_returns_dict(self, mock_redis_client):
-        mock_redis_client.get.return_value = json.dumps({"key": "value"}).encode()
-        with patch("mgallery.library.database.redis") as mock_redis:
-            mock_redis.from_url.return_value = mock_redis_client
-            db = Database()
-            result = db.get("test_key")
-            assert result == {"key": "value"}
+    def test_get_returns_dict(self, database):
+        database.create(path="test", name="image.jpg", phash="abc123", width=100, height=100, size=1000)
+        result = database.get("abc123-test/image.jpg")
+        assert result["path"] == "test"
+        assert result["name"] == "image.jpg"
+        assert result["phash"] == "abc123"
 
-    def test_get_returns_empty_dict_when_not_found(self, mock_redis_client):
-        mock_redis_client.get.return_value = None
-        with patch("mgallery.library.database.redis") as mock_redis:
-            mock_redis.from_url.return_value = mock_redis_client
-            db = Database()
-            result = db.get("nonexistent_key")
-            assert result == {}
+    def test_get_returns_empty_dict_when_not_found(self, database):
+        result = database.get("nonexistent-key")
+        assert result == {}
 
-    def test_all_returns_list(self, mock_redis_client):
-        mock_redis_client.keys.return_value = [b"key1", b"key2"]
-        mock_redis_client.get.side_effect = [json.dumps({"name": "img1"}).encode(), json.dumps({"name": "img2"}).encode()]
-        with patch("mgallery.library.database.redis") as mock_redis:
-            mock_redis.from_url.return_value = mock_redis_client
-            db = Database()
-            result = db.all()
-            assert len(result) == 2
+    def test_all_returns_list(self, database):
+        database.create(path="test", name="img1.jpg", phash="abc", width=100, height=100, size=1000)
+        database.create(path="test", name="img2.jpg", phash="abc", width=100, height=100, size=900)
+        result = database.all()
+        assert len(result) == 2
 
-    def test_create(self, mock_redis_client):
-        with patch("mgallery.library.database.redis") as mock_redis:
-            mock_redis.from_url.return_value = mock_redis_client
-            db = Database()
-            db.create(path="test", name="image.jpg", phash="abc123", width=100, height=100, size=1000)
-            mock_redis_client.set.assert_called_once()
+    def test_create(self, database):
+        database.create(path="test", name="image.jpg", phash="abc123", width=100, height=100, size=1000)
+        result = database.all()
+        assert len(result) == 1
+        assert result[0]["name"] == "image.jpg"
 
-    def test_delete(self, mock_redis_client):
-        mock_redis_client.keys.return_value = [b"key1"]
-        with patch("mgallery.library.database.redis") as mock_redis:
-            mock_redis.from_url.return_value = mock_redis_client
-            db = Database()
-            db.delete("test", "image.jpg")
-            mock_redis_client.keys.assert_called()
-            mock_redis_client.delete.assert_called_once()
+    def test_delete(self, database):
+        database.create(path="test", name="image.jpg", phash="abc", width=100, height=100, size=1000)
+        database.delete("test", "image.jpg")
+        result = database.all()
+        assert len(result) == 0
 
-    def test_duplicates_returns_dict(self, mock_redis_client):
-        mock_redis_client.keys.return_value = [b"abc-test/img1", b"abc-test/img2"]
-        mock_redis_client.get.side_effect = [json.dumps({"path": "test", "name": "img1", "phash": "abc", "size": 1000}).encode(), json.dumps({"path": "test", "name": "img2", "phash": "abc", "size": 900}).encode()]
-        with patch("mgallery.library.database.redis") as mock_redis:
-            mock_redis.from_url.return_value = mock_redis_client
-            db = Database()
-            result = db.duplicates()
-            assert "abc" in result
+    def test_duplicates_returns_dict(self, database):
+        database.create(path="test", name="img1.jpg", phash="abc", width=100, height=100, size=1000)
+        database.create(path="test", name="img2.jpg", phash="abc", width=100, height=100, size=900)
+        result = database.duplicates()
+        assert "abc" in result
+        assert len(result["abc"]) == 2
 
-    def test_duplicates_filters_single_images(self, mock_redis_client):
-        mock_redis_client.keys.return_value = [b"abc-test/img1"]
-        mock_redis_client.get.return_value = json.dumps({"path": "test", "name": "img1", "phash": "abc"}).encode()
-        with patch("mgallery.library.database.redis") as mock_redis:
-            mock_redis.from_url.return_value = mock_redis_client
-            db = Database()
-            result = db.duplicates()
-            assert result == {}
+    def test_duplicates_filters_single_images(self, database):
+        database.create(path="test", name="img1.jpg", phash="abc", width=100, height=100, size=1000)
+        result = database.duplicates()
+        assert result == {}
+
+    def test_all_with_pattern(self, database):
+        database.create(path="folder1", name="img1.jpg", phash="abc", width=100, height=100, size=1000)
+        database.create(path="folder2", name="img2.jpg", phash="def", width=100, height=100, size=900)
+        result = database.all("folder1")
+        assert len(result) == 1
+        assert result[0]["path"] == "folder1"
