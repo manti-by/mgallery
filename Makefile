@@ -3,7 +3,10 @@ install:
 	sudo apt install -y python3-gi python3-gi-cairo gir1.2-gtk-3.0 libgirepository-2.0-dev gcc libcairo2-dev
 
 flush-db:
-	redis-cli -n 5 FLUSHALL
+	psql -h 127.0.0.1 -U manti -d mgallery -c "TRUNCATE TABLE images;"
+
+migrate:
+	uv run alembic upgrade head
 
 clean-dirs:
 	rm -rf /var/mgallery/thumbnails/*
