@@ -2,119 +2,93 @@
 
 ## Project Overview
 
-mgallery is an image deduplication script that helps identify and manage duplicate images. It scans directories, extracts EXIF/metadata, computes perceptual hashes (phash), and provides tools for comparing, renaming, and managing duplicate images.
+Image deduplication script. Scans directories, computes perceptual hashes (OpenCV), and identifies duplicates via PostgreSQL.
 
-## Project Structure
+## Architecture
 
-- `mgallery/mgallery.py`: Main entry point
-- `mgallery/compare.py`: Image comparison logic using perceptual hashing
-- `mgallery/scanner.py`: Directory scanning and file discovery
-- `mgallery/image.py`: Image metadata extraction (EXIF)
-- `mgallery/phash.py`: Perceptual hash computation
-- `mgallery/thumbnails.py`: Thumbnail generation
-- `mgallery/database.py`: SQLite database for caching
-- `mgallery/rename.py`: File renaming utilities
-- `mgallery/resort.py`: Reorganize images by date
-- `mgallery/autodelete.py`: Auto-delete duplicates
-- `mgallery/settings.py`: Configuration and environment variables
-- `mgallery/date_re.py`: Date regex patterns
-- `mgallery/utils.py`: Helper utilities
+Entry point: `mgallery.py` (root) — dispatches CLI flags to service runners.
+
+```
+mgallery/
+  library/      # Data layer: SQLAlchemy models, DB access, image processing, phash
+  services/     # Business logic: scanner, compare, autodelete, rename, resort, thumbnails, dump
+  utils/        # Settings, date regex, filesystem helpers
+```
+
+- **Database**: PostgreSQL via SQLAlchemy 2.x (raw `text()` queries, not ORM). Alembic for migrations.
+- **Models**: `mgallery/library/tables.py` (single `Image` table). `Base` is exported from there for Alembic.
+- **DB access**: `mgallery/library/database.py` — `Database` class wraps engine + session factory.
+- **Type checker**: `ty` (not mypy/pyright). Pyright is disabled in `opencode.json`.
+- **Image processing**: `rawpy` for RAW (arw/dng), `cv2` (OpenCV) for RGB. `cv2` import is TYPE_CHECKING-guarded.
 
 ## Development Commands
 
 ```bash
-# Install dependencies
-uv sync --all-extras --dev
-
-# Run linting and type checking
-uv run ruff check .
-uv run ty check
-uv run pre-commit run --all-files
-
-# Run tests
-make test
-uv run pytest tests/
-
-# Run the script
-mgallery --help
+uv sync --all-extras --dev          # install deps
+make test                           # uv run pytest tests/
+make check                          # git add . && ty check && pre-commit run
+make migrate                        # uv run alembic upgrade head
+uv run mgallery.py -s               # scan
+uv run mgallery.py -c               # compare
 ```
 
-## Language & Environment
+Pre-commit runs: pyupgrade (`--py313-plus`), ruff (`--fix`), ruff-format, bandit. CI only runs pre-commit — tests and `ty check` are **not** in CI.
 
-- Python >=3.13, <3.14 (see `pyproject.toml`)
-- Follow PEP 8 style guidelines, with Ruff enforcing style (120 char line length)
-- Use type hints for public functions and complex code paths
-- Use only f-strings for string formatting (never `.format()` or `%` formatting)
-- Use list/dict/set comprehensions instead of `map`/`filter` where it improves readability
-- Prefer `pathlib.Path` over `os.path` for filesystem paths
-- Follow PEP 257 for docstrings where docstrings are used
+## Environment
 
-## Code Style & Tooling
+Required env vars (see `mgallery/utils/settings.py`):
+- `GALLERY_PATH` — image root directory
+- `DATABASE_URL` — PostgreSQL connection string
+- `THUMBNAILS_PATH` — thumbnail output directory
 
-Configured in `pyproject.toml`:
+System deps: `libraw-dev`, `python3-gi`, `gir1.2-gtk-3.0`, `libcairo2-dev` (for rawpy + PyGObject).
 
-- **Ruff** for linting and import management (`[tool.ruff]`, `[tool.ruff.lint]`)
-- **Bandit** for basic security checks (`[tool.bandit]`)
-- **ty** for type checking
-- **pre-commit** is used to run the tools before commits
+## Testing
 
-Run manually:
+Tests use SQLite in-memory (`tests/conftest.py` — `create_test_engine()`), not PostgreSQL. Pass the test engine to `Database(engine=...)`.
 
-```bash
-uv run pre-commit run --all-files
-uv run ruff check .
-uv run ty check
-uv run bandit -c pyproject.toml .
-```
+## Git Workflow
 
-## Code Conventions
+This project adheres strictly to the Git Flow branching model. AI agents must follow these guidelines:
 
-**Naming** (ruff N enforces most):
-- Modules: `snake_case.py`
-- Classes: `PascalCase`
-- Functions: `snake_case`; private prefixed `_`
-- Constants: `UPPER_SNAKE_CASE`; env-driven ones live in `mgallery/settings.py`
+### Main Branch:
 
-**Architecture**:
-- Keep modules focused: one responsibility per file
-- Pure functions preferred for business logic
-- I/O operations separated from processing logic
+- The `master` branch always contains production-ready, stable code.
+- Never commit directly to `master`.
+- Do not use `git push --force` on the `master` branch.
+- Do not merge branches into `master` without explicit approval.
 
-**Do NOT use**:
-- `print()` for output (use logging or rich for UI)
-- PEP 585 typing (`Tuple[X]/Optional[X]/List[X]/Dict[X]` — use PEP 604 `X | None` / `list[X]`)
-- Mutable default arguments
-- Inline comments and emojis in code
+### Feature Branches:
 
-## Testing Guidelines
+- Create feature branches using the naming convention `<agent-name>/feature/<descriptive-name>` (e.g., `opencode/feature/add-thumbnail-cache`).
+- Use the [Conventional Commits](https://www.conventionalcommits.org) specification for commit messages (e.g., `feat:`, `fix:`, `docs:`).
+- Ensure all local tests pass before committing.
+- Use `git push --force-with-lease` if needed on your feature branch, but never on `master`.
 
-- Use `pytest` for tests
-- Tests live in `tests/` directory
-- Run with `make test` or `uv run pytest tests/`
+### Pull Requests (PRs):
 
-## Dependencies
+- Open a Pull Request for every completed feature branch.
+- PRs must be reviewed and pass all CI checks before merging.
+- The PR title should follow the Conventional Commits specification.
 
-**Core**: pillow, rawpy, numpy, exifread, pycairo, PyGObject, redis
-**Development**: pytest, ipython, pre-commit, ty, bandit
+## Conventions
 
-## Security Guidelines
+- Python 3.13 only. Use PEP 604 unions (`X | None`), not `Optional[X]`.
+- ruff isort has custom section order: `mgallery` → `mgallery.library` → `mgallery.utils` → `mgallery.services` (see `pyproject.toml`).
+- Use only f-strings for string formatting (never `.format()` or `%` formatting).
+- Use list/dict/set comprehensions instead of `map`/`filter` where it improves readability.
+- Prefer `pathlib.Path` over `os.path` for filesystem paths.
+- Use only named arguments instead of positional arguments in function and method calls.
+- No `print()` — use `logging`.
+- No inline comments or emojis in code.
+- No mutable default arguments (use `field(default_factory=...)`).
+- `make check` runs `git add .` before linting — be aware when staging is incomplete.
 
-- Never commit secrets, passwords, or API tokens
-- Configure sensitive values via environment variables
-- Run `bandit` periodically or in CI
-- Validate any external input before using it in system calls
+## Database Migrations
 
-## AI Behavior
+When creating Alembic migrations:
 
-Response style -- concise and minimal:
-
-- Provide minimal, working code without unnecessary explanation
-- Omit comments unless essential for understanding
-- Skip boilerplate and obvious patterns unless requested
-- Use type inference and shorthand syntax where possible
-- Prefer the core solution, skip tangential suggestions
-- Assume familiarity with language idioms and patterns
-- Let code speak for itself through clear naming and structure
-- Avoid over-explaining standard patterns and conventions
-- Provide just enough context to understand the solution
-- Trust the developer to handle obvious cases independently
+- Use descriptive names in snake_case (e.g., `add_phash_index`, `drop_legacy_columns`, `create_image_metadata_table`)
+- Prefix with operation type: `add_`, `create_`, `drop_`, `alter_`, `remove_`, `rename_`
+- Include the table name and what changed
+- Example: `uv run alembic revision --autogenerate -m "add_image_size_column"`
